@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Handmate MIDI</title>
+  <link rel="stylesheet" type="text/css" href="appstyle.css">
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils@0.6/control_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.3/hands.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/webmidi@latest/dist/iife/webmidi.iife.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="logo">
+        <h1>Handmate MIDI</h1>
+      </div>
+      <div class="header-controls">
+        <button onclick="toggleControl()" id="controlButton" class="btn btn-primary">
+          <span class="btn-text">Hide Controls</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <div class="video-container">
+        <video class="input_video"></video>
+        <div class="canvas-container">
+          <canvas class="output_canvas" width="1280px" height="720px"></canvas>
+        </div>
+      </div>
+
+      <div class="control-panel">
+        <div class="control-section">
+          <h2>Camera Settings</h2>
+          <div class="control-group">
+            <div class="control-item">
+              <label class="switch">
+                <input id="selfie" type="checkbox" checked="checked">
+                <span class="slider round"></span>
+              </label>
+              <span class="control-label">Selfie view</span>
+            </div>
+            <div class="control-item">
+              <label class="switch">
+                <input id="showTracking" type="checkbox" checked="checked">
+                <span class="slider round"></span>
+              </label>
+              <span class="control-label">Show tracking</span>
+            </div>
+          </div>
+          <div class="control-item">
+            <span class="fps-display">FPS: <span id="fps">0</span></span>
+          </div>
+          <div class="control-item select-container">
+            <label for="videoSource">Camera</label>
+            <select id="videoSource" class="select-input"></select>
+          </div>
+          <div class="control-item select-container">
+            <label for="device">MIDI out device</label>
+            <select id="device" onchange="changeDevice()" class="select-input"></select>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <h2>MIDI Notes</h2>
+          <div class="control-item">
+            <label class="switch">
+              <input id="sendMidi" type="checkbox">
+              <span class="slider round"></span>
+            </label>
+            <span class="control-label">Send MIDI notes
+              <span class="tooltip-icon" data-tooltip="Check box to send continuous stream of MIDI notes">i</span>
+            </span>
+          </div>
+          <div class="control-item">
+            <label for="midiChannel">Channel:
+              <span class="tooltip-icon" data-tooltip="1-16 channels">i</span>
+            </label>
+            <input type="number" id="midiChannel" min="1" max="16" value="1" class="number-input"/>
+          </div>
+          <div class="control-item select-container">
+            <label for="midiPitchControlInput">Note pitch
+              <span class="tooltip-icon" data-tooltip="Control note pitch with movement. If none selected, note will be C4">i</span>
+            </label>
+            <select name="midiPitchControlInput" id="midiPitchControlInput" class="select-input">
+              <option value="nil" selected>----</option>
+              <option value="leftIndexX">Left index x</option>
+              <option value="leftIndexY">Left index y</option>
+              <option value="leftClosed">Left hand closed</option>
+              <option value="rightIndexX">Right index x</option>
+              <option value="rightIndexY">Right index y</option>
+              <option value="rightClosed">Right hand closed</option>
+              <option value="indexDistance">Index distance</option>
+            </select>
+          </div>
+          <div class="control-item select-container">
+            <label for="midiVelInput">Note velocity
+              <span class="tooltip-icon" data-tooltip="Control note velocity with movement. If none selected, note velocity is maximum">i</span>
+            </label>
+            <select name="midiVelInput" id="midiVelInput" class="select-input">
+              <option value="nil" selected>----</option>
+              <option value="leftIndexX">Left index x</option>
+              <option value="leftIndexY">Left index y</option>
+              <option value="leftClosed">Left hand closed</option>
+              <option value="rightIndexX">Right index x</option>
+              <option value="rightIndexY">Right index y</option>
+              <option value="rightClosed">Right hand closed</option>
+              <option value="indexDistance">Index distance</option>
+            </select>
+          </div>
+          <div class="control-item select-container">
+            <label for="BPMAutomateInput">BPM automate
+              <span class="tooltip-icon" data-tooltip="Control BPM with movement. If none selected, BPM is set by slider">i</span>
+            </label>
+            <select name="BPMAutomateInput" id="BPMAutomateInput" class="select-input">
+              <option value="nil" selected>----</option>
+              <option value="leftIndexX">Left index x</option>
+              <option value="leftIndexY">Left index y</option>
+              <option value="leftClosed">Left hand closed</option>
+              <option value="rightIndexX">Right index x</option>
+              <option value="rightIndexY">Right index y</option>
+              <option value="rightClosed">Right hand closed</option>
+              <option value="indexDistance">Index distance</option>
+            </select>
+          </div>
+          <div class="control-item">
+            <div class="slider-container">
+              <input type="number" id="sliderMinValue" value="20" step="1" class="number-input slider-limit">
+              <input type="range" id="bpm" name="bpm" min="20" max="500" step="1" value="120" class="range-slider">
+              <input type="number" id="sliderMaxValue" value="500" step="1" class="number-input slider-limit">
+            </div>
+            <div class="slider-value">
+              BPM: <span id="bpmValue" class="value-display">120</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <h2>Continuous Controls</h2>
+          <div class="control-item select-container">
+            <label for="pitchBendInput">Pitchbend</label>
+            <select name="pitchBendInput" id="pitchBendInput" class="select-input">
+              <option value="nil" selected>----</option>
+              <option value="leftIndexX">Left index x</option>
+              <option value="leftIndexY">Left index y</option>
+              <option value="leftClosed">Left hand closed</option>
+              <option value="rightIndexX">Right index x</option>
+              <option value="rightIndexY">Right index y</option>
+              <option value="rightClosed">Right hand closed</option>
+              <option value="indexDistance">Index distance</option>
+            </select>
+          </div>
+          <div class="control-item select-container">
+            <label for="aftertouchInput">Aftertouch</label>
+            <select name="aftertouchInput" id="aftertouchInput" class="select-input">
+              <option value="nil" selected>----</option>
+              <option value="leftIndexX">Left index x</option>
+              <option value="leftIndexY">Left index y</option>
+              <option value="leftClosed">Left hand closed</option>
+              <option value="rightIndexX">Right index x</option>
+              <option value="rightIndexY">Right index y</option>
+              <option value="rightClosed">Right hand closed</option>
+              <option value="indexDistance">Index distance</option>
+            </select>
+          </div>
+          
+          <div class="cc-controls">
+            <div class="cc-control">
+              <div class="cc-inputs">
+                <div class="cc-input-group">
+                  <label for="cc1Channel">Chan:
+                    <span class="tooltip-icon" data-tooltip="1-16 channels">i</span>
+                  </label>
+                  <input type="number" id="cc1Channel" min="1" max="16" value="1" class="number-input"/>
+                </div>
+                <div class="cc-input-group">
+                  <label for="cc1Controller">CC:
+                    <span class="tooltip-icon" data-tooltip="0-127">i</span>
+                  </label>
+                  <input type="number" id="cc1Controller" min="0" max="127" value="1" class="number-input"/>
+                </div>
+              </div>
+              <div class="cc-select">
+                <select name="cc1Input" id="cc1Input" class="select-input">
+                  <option value="nil" selected>----</option>
+                  <option value="leftIndexX">Left index x</option>
+                  <option value="leftIndexY">Left index y</option>
+                  <option value="leftClosed">Left hand closed</option>
+                  <option value="rightIndexX">Right index x</option>
+                  <option value="rightIndexY">Right index y</option>
+                  <option value="rightClosed">Right hand closed</option>
+                  <option value="indexDistance">Index distance</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="cc-control">
+              <div class="cc-inputs">
+                <div class="cc-input-group">
+                  <label for="cc2Channel">Chan:
+                    <span class="tooltip-icon" data-tooltip="1-16 channels">i</span>
+                  </label>
+                  <input type="number" id="cc2Channel" min="1" max="16" value="2" class="number-input"/>
+                </div>
+                <div class="cc-input-group">
+                  <label for="cc2Controller">CC:
+                    <span class="tooltip-icon" data-tooltip="0-127">i</span>
+                  </label>
+                  <input type="number" id="cc2Controller" min="0" max="127" value="2" class="number-input"/>
+                </div>
+              </div>
+              <div class="cc-select">
+                <select name="cc2Input" id="cc2Input" class="select-input">
+                  <option value="nil" selected>----</option>
+                  <option value="leftIndexX">Left index x</option>
+                  <option value="leftIndexY">Left index y</option>
+                  <option value="leftClosed">Left hand closed</option>
+                  <option value="rightIndexX">Right index x</option>
+                  <option value="rightIndexY">Right index y</option>
+                  <option value="rightClosed">Right hand closed</option>
+                  <option value="indexDistance">Index distance</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="cc-control">
+              <div class="cc-inputs">
+                <div class="cc-input-group">
+                  <label for="cc3Channel">Chan:
+                    <span class="tooltip-icon" data-tooltip="1-16 channels">i</span>
+                  </label>
+                  <input type="number" id="cc3Channel" min="1" max="16" value="3" class="number-input"/>
+                </div>
+                <div class="cc-input-group">
+                  <label for="cc3Controller">CC:
+                    <span class="tooltip-icon" data-tooltip="0-127">i</span>
+                  </label>
+                  <input type="number" id="cc3Controller" min="0" max="127" value="3" class="number-input"/>
+                </div>
+              </div>
+              <div class="cc-select">
+                <select name="cc3Input" id="cc3Input" class="select-input">
+                  <option value="nil" selected>----</option>
+                  <option value="leftIndexX">Left index x</option>
+                  <option value="leftIndexY">Left index y</option>
+                  <option value="leftClosed">Left hand closed</option>
+                  <option value="rightIndexX">Right index x</option>
+                  <option value="rightIndexY">Right index y</option>
+                  <option value="rightClosed">Right hand closed</option>
+                  <option value="indexDistance">Index distance</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="cc-control">
+              <div class="cc-inputs">
+                <div class="cc-input-group">
+                  <label for="cc4Channel">Chan:
+                    <span class="tooltip-icon" data-tooltip="1-16 channels">i</span>
+                  </label>
+                  <input type="number" id="cc4Channel" min="1" max="16" value="4" class="number-input"/>
+                </div>
+                <div class="cc-input-group">
+                  <label for="cc4Controller">CC:
+                    <span class="tooltip-icon" data-tooltip="0-127">i</span>
+                  </label>
+                  <input type="number" id="cc4Controller" min="0" max="127" value="4" class="number-input"/>
+                </div>
+              </div>
+              <div class="cc-select">
+                <select name="cc4Input" id="cc4Input" class="select-input">
+                  <option value="nil" selected>----</option>
+                  <option value="leftIndexX">Left index x</option>
+                  <option value="leftIndexY">Left index y</option>
+                  <option value="leftClosed">Left hand closed</option>
+                  <option value="rightIndexX">Right index x</option>
+                  <option value="rightIndexY">Right index y</option>
+                  <option value="rightClosed">Right hand closed</option>
+                  <option value="indexDistance">Index distance</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-section">
+          <h2>Gesture Recognition</h2>
+          <div class="control-item">
+            <label class="switch">
+              <input id="gesture" type="checkbox">
+              <span class="slider round"></span>
+            </label>
+            <span class="control-label">Enable Gestures
+              <span class="tooltip-icon" data-tooltip="Check box to start gesture recognition to trigger MIDI notes">i</span>
+            </span>
+          </div>
+          
+          <div class="gesture-controls">
+            <div class="gesture-control">
+              <div class="gesture-inputs">
+                <div class="gesture-input-group">
+                  <label for="trigger1Channel">Channel:
+                    <span class="tooltip-icon" data-tooltip="1-16 channels">i</span>
+                  </label>
+                  <input type="number" id="trigger1Channel" min="1" max="16" value="1" class="number-input"/>
+                </div>
+                <div class="gesture-input-group">
+                  <label for="midi1NoteInput">MIDI note:
+                    <span class="tooltip-icon" data-tooltip="0-127">i</span>
+                  </label>
+                  <input type="number" id="midi1NoteInput" min="0" max="127" value="60" class="number-input"/>
+                </div>
+              </div>
+              <div class="gesture-icon">
+                <span class="gesture-emoji">👉👈</span>
+                <span class="tooltip-icon" data-tooltip="Index fingers touching">i</span>
+              </div>
+            </div>
+            
+            <div class="gesture-control">
+              <div class="gesture-inputs">
+                <div class="gesture-input-group">
+                  <label for="trigger2Channel">Channel:
+                    <span class="tooltip-icon" data-tooltip="1-16 channels">i</span>
+                  </label>
+                  <input type="number" id="trigger2Channel" min="1" max="16" value="1" class="number-input"/>
+                </div>
+                <div class="gesture-input-group">
+                  <label for="midi2NoteInput">MIDI note:
+                    <span class="tooltip-icon" data-tooltip="0-127">i</span>
+                  </label>
+                  <input type="number" id="midi2NoteInput" min="0" max="127" value="60" class="number-input"/>
+                </div>
+              </div>
+              <div class="gesture-icon">
+                <span class="gesture-emoji flip-horizontal">✋</span>
+                <span class="tooltip-icon" data-tooltip="Back of left hand facing screen">i</span>
+              </div>
+            </div>
+            
+            <div class="gesture-control">
+              <div class="gesture-inputs">
+                <div class="gesture-input-group">
+                  <label for="trigger3Channel">Channel:
+                    <span class="tooltip-icon" data-tooltip="1-16 channels">i</span>
+                  </label>
+                  <input type="number" id="trigger3Channel" min="1" max="16" value="1" class="number-input"/>
+                </div>
+                <div class="gesture-input-group">
+                  <label for="midi3NoteInput">MIDI note:
+                    <span class="tooltip-icon" data-tooltip="0-127">i</span>
+                  </label>
+                  <input type="number" id="midi3NoteInput" min="0" max="127" value="60" class="number-input"/>
+                </div>
+              </div>
+              <div class="gesture-icon">
+                <span class="gesture-emoji">✋</span>
+                <span class="tooltip-icon" data-tooltip="Back of right hand facing screen">i</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="app-footer">
+      <div class="browser-warning">
+        <p>We recommend using Google Chrome, Firefox or Microsoft Edge as web MIDI is not supported by some other browsers including Safari.</p>
+      </div>
+    </footer>
+  </div>
+  <script type="text/javascript" src="script.js"></script>
+</body>
+</html>
