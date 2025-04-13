@@ -1,10 +1,15 @@
 // utils/midiUtils.ts
+
 import { WebMidi, Output } from "webmidi";
 
 let output: Output | null = null;
 let bpm = 120;
 let midiEnabled = false;
 
+
+if (typeof window !== "undefined") {
+  (window as any).WebMidi = WebMidi;
+}
 export async function initMidi(): Promise<void> {
   try {
     await WebMidi.enable();
