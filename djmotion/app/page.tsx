@@ -3,11 +3,13 @@
 import { useState, useEffect } from "react"
 import { useGesturePolling } from "../app/utils/useGesturesPolling"
 import * as audioUtils from "../app/utils/audioUtils"
+import * as midiUtils from "../app/utils/midiUtils"
 import WebcamView from "../app/components/webcam-view"
 import AudioControls from "../app/components/audio-controls"
 import TrackDisplay from "../app/components/track-display"
 import GestureDisplay from "../app/components/gesture-display"
 import AiSuggestions from "../app/components/ai-suggestions"
+import DJControls from "../app/components/dj-controls"
 import { Button } from "@/app/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
@@ -99,6 +101,35 @@ export default function Home() {
     }
   }
 
+  // Handle MIDI settings
+  const handleMidiDeviceChange = (device: string) => {
+    midiUtils.setMidiDevice(device)
+    toast({
+      title: "MIDI Device Changed",
+      description: `Now using: ${device}`,
+    })
+  }
+
+  const handleBpmChange = (bpm: number) => {
+    midiUtils.setBpm(bpm)
+    toast({
+      title: "BPM Updated",
+      description: `Tempo set to: ${bpm} BPM`,
+    })
+  }
+
+  const handleChannelChange = (channel: number) => {
+    console.log("MIDI channel changed to:", channel)
+  }
+
+  const handleSendMidiNotes = (enabled: boolean) => {
+    midiUtils.enableMidi(enabled)
+    toast({
+      title: enabled ? "MIDI Enabled" : "MIDI Disabled",
+      description: enabled ? "Now sending MIDI messages" : "MIDI output turned off",
+    })
+  }
+
   return (
     <main className="flex min-h-screen flex-col bg-gradient-to-br from-gray-900 to-black text-white">
       <div className="container mx-auto px-4 py-8">
@@ -139,9 +170,10 @@ export default function Home() {
               />
 
               <Tabs defaultValue="gestures" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
+                <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="gestures">Gesture Guide</TabsTrigger>
                   <TabsTrigger value="ai">AI Suggestions</TabsTrigger>
+                  <TabsTrigger value="controls">MIDI Controls</TabsTrigger>
                 </TabsList>
                 <TabsContent value="gestures" className="rounded-md border border-gray-800 bg-gray-900 p-4">
                   <div className="space-y-3">
@@ -169,6 +201,14 @@ export default function Home() {
                       setIsPlaying(true)
                       setCurrentTrack(track)
                     }}
+                  />
+                </TabsContent>
+                <TabsContent value="controls" className="p-0">
+                  <DJControls 
+                    onSelectMidiDevice={handleMidiDeviceChange}
+                    onBpmChange={handleBpmChange}
+                    onChannelChange={handleChannelChange}
+                    onSendMidiNotes={handleSendMidiNotes}
                   />
                 </TabsContent>
               </Tabs>
