@@ -1,4 +1,4 @@
-# Handmate MIDI
+# DJMotion
 
 A web-based MIDI controller that uses hand gestures through your webcam to control MIDI devices. Built with MediaPipe Hands for hand tracking and WebMidi.js for MIDI communication.
 
