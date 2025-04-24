@@ -80,23 +80,3 @@ The following hand movements can be mapped to any control:
 5. Use the BPM slider or automate it with hand movements
 6. Monitor FPS and tracking visualization as needed
 
-## Demo
-
-Check out the demo video: [YouTube Demo](https://youtu.be/H97t17Q_BbM)
-
-## Technical Details
-
-- Hand tracking: MediaPipe Hands
-- MIDI communication: WebMidi.js
-- Camera handling: MediaDevices API
-- Graphics: HTML Canvas
-
-## Offline Version
-
-An offline version is available at: https://github.com/monlim/Handmate-MIDI-Offline
-
-## Credits
-
-- WebMidi API: https://webmidijs.org/
-- MediaPipe: https://google.github.io/mediapipe/
-- Thanks to Natalia Kotsani and Mirza Ceyzar for development help
