@@ -10,7 +10,6 @@
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3/drawing_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.3/hands.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/webmidi@latest/dist/iife/webmidi.iife.min.js"></script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 
 <body>
@@ -35,6 +34,19 @@
       </div>
 
       <div class="control-panel">
+        <div class="control-section preset-section">
+          <h2>Presets</h2>
+          <div class="preset-controls">
+            <select id="presetSelect" class="select-input">
+              <option value="">-- Load Preset --</option>
+            </select>
+            <div class="preset-buttons">
+              <button id="presetSaveBtn" class="btn btn-preset btn-save">Save</button>
+              <button id="presetDeleteBtn" class="btn btn-preset btn-delete">Delete</button>
+            </div>
+          </div>
+        </div>
+
         <div class="control-section">
           <h2>Camera Settings</h2>
           <div class="control-group">
