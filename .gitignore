@@ -34,3 +34,5 @@ hosting/.cache
 /firebase-*.zip
 /.firebase/
 /emulator-ui/
+
+.vercel/
