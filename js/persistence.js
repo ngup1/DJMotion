@@ -1,8 +1,8 @@
 import state from "./state.js"
 import { DEFAULT_MIDI_NOTE } from "./constants.js"
 
-const STORAGE_KEY = "handmate_midi_settings"
-const PRESETS_STORAGE_KEY = "handmate_midi_presets"
+const STORAGE_KEY = "djmotion_settings"
+const PRESETS_STORAGE_KEY = "djmotion_presets"
 
 const PERSISTABLE_CONTROLS = [
   // Checkboxes
