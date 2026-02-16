@@ -1,8 +1,6 @@
-# DJMotion (Handmate MIDI)
+# DJMotion
 
-A browser-based MIDI controller that translates real-time hand gestures and movements — captured through your webcam — into MIDI messages. Built for Google DevFest WashU 2025.
-
-Point your hands at the camera, and DJMotion sends notes, CC values, pitch bend, and aftertouch to any connected MIDI device or DAW.
+A browser-based MIDI controller that translates real-time hand gestures and movements — captured through your webcam — into MIDI messages. Built for Google DevFest WashU 2025. Point your hands at the camera, and DJMotion sends notes, CC values, pitch bend, and aftertouch to any connected MIDI device or DAW.
 
 ## How It Works
 
@@ -13,31 +11,61 @@ Point your hands at the camera, and DJMotion sends notes, CC values, pitch bend,
 
 ## Features
 
-**MIDI Note Generation** — Continuous stream of notes at a configurable BPM (20-500), with hand-controlled pitch and velocity.
+### Camera Controls
+- Selfie view toggle (mirror camera feed)
+- Hand tracking visualization toggle
+- Camera selection dropdown
+- Real-time FPS display
 
-**Movement Mapping** — Map any of 7 hand inputs to any MIDI output:
-- Left/Right index finger X and Y position
+### MIDI Controls
+- MIDI device selection
+- MIDI channel selection (1-16)
+- Note pitch control (hand-mapped or fixed at C4)
+- Note velocity control (hand-mapped or max)
+- BPM automation (hand-mapped or manual slider)
+- BPM slider (20-500 BPM, adjustable min/max)
+
+### Continuous Controls
+- Pitch bend
+- Aftertouch
+- 4 customizable CC controls, each with:
+  - Channel selection (1-16)
+  - CC number (0-127)
+  - Hand movement mapping
+
+### Gesture Recognition
+Three built-in gestures that trigger MIDI notes:
+1. Index fingers touching
+2. Back of left hand facing screen
+3. Back of right hand facing screen
+
+Each gesture can be configured with:
+- MIDI channel (1-16)
+- MIDI note (0-127)
+
+### Movement Mapping
+The following hand movements can be mapped to any control:
+- Left/Right index finger X position
+- Left/Right index finger Y position
 - Left/Right hand open/closed state
 - Distance between index fingers
 
-**Gesture Triggers** — 3 gesture-triggered MIDI notes with hysteresis to prevent jitter:
-- Index fingers touching
-- Left hand flipped (back of hand facing camera)
-- Right hand flipped
+### Preset System
+Save and load named presets. All settings persist across sessions via localStorage.
 
-**Continuous Controls** — Pitch bend, aftertouch, and 4 independent CC controls, each with configurable channel and CC number.
-
-**Preset System** — Save and load named presets. All settings persist across sessions via localStorage.
-
-**Visual Feedback** — Color-coded vignette flash on the video canvas when gestures trigger (indigo, green, amber).
+### Visual Feedback
+Color-coded vignette flash on the video canvas when gestures trigger (indigo, green, amber).
 
 ## Requirements
 
 - **Browser**: Chrome, Firefox, or Edge (Safari does not support Web MIDI)
 - **Webcam**
 - **MIDI device** (physical or virtual)
+- **Windows users**: [loopMIDI](https://www.tobias-erichsen.de/software/loopmidi.html) or VBAN-2-Midi as a virtual MIDI bridge
 
-## Quick Start
+## Setup
+
+### 1. Install and run
 
 ```bash
 cd djmotion
@@ -47,17 +75,35 @@ npx http-server
 
 Then open `http://localhost:8080` in your browser.
 
-1. Allow camera and MIDI access when prompted
-2. Select your MIDI output device from the dropdown
-3. Enable "Send MIDI notes" or "Gestures" to start
-4. Map hand movements to controls using the dropdowns
-5. Save your configuration as a preset for next time
+### 2. Allow permissions
 
-### Virtual MIDI Setup
+1. Allow **camera access** when prompted
+2. Allow **MIDI access** when prompted
+3. Select your MIDI output device from the dropdown
 
-**macOS**: Open Audio MIDI Setup (Applications > Utilities), click Window > Show MIDI Studio, click "+" to create a virtual MIDI device.
+### 3. Setting up Virtual MIDI on macOS
 
-**Windows**: Install [loopMIDI](https://www.tobias-erichsen.de/software/loopmidi.html) and create a virtual MIDI port.
+1. Open **Audio MIDI Setup** (Applications > Utilities > Audio MIDI Setup)
+2. Click **Window > Show MIDI Studio**
+3. Click the **"+"** button to create a virtual MIDI device
+4. Name your device and click Apply
+5. Select it in DJMotion's MIDI device dropdown
+
+### 4. Setting up Virtual MIDI on Windows
+
+1. Download and install [loopMIDI](https://www.tobias-erichsen.de/software/loopmidi.html) or VBAN-2-Midi
+2. Create a virtual MIDI port
+3. Select it in DJMotion's MIDI device dropdown
+
+## Usage
+
+1. Enable **"Send MIDI notes"** to start sending continuous MIDI notes based on hand presence
+2. Enable **"Gestures"** to use the three built-in gesture triggers
+3. Map hand movements to different controls using the dropdowns
+4. Adjust MIDI channels and CC numbers as needed
+5. Use the BPM slider or automate it with hand movements
+6. Save your configuration as a preset for next time
+7. Monitor FPS and tracking visualization as needed
 
 ## Tech Stack
 
@@ -73,8 +119,22 @@ Then open `http://localhost:8080` in your browser.
 
 ```
 djmotion/
-  index.html       UI layout and control panel
-  script.js        Hand tracking, MIDI logic, gesture detection, presets
-  appstyle.css     Dark theme styling with responsive breakpoints
-  package.json     Dependencies (webmidi, http-server)
+  index.html         UI layout and control panel
+  appstyle.css       Dark theme styling with responsive breakpoints
+  package.json       Dependencies (webmidi, http-server)
+  js/
+    main.js          Entry point — DOM refs, event wiring, initialization
+    constants.js     All named constants (thresholds, ranges, config)
+    utils.js         Math utilities (scaleValue, clamp, linearScale)
+    state.js         Shared mutable state object
+    midi.js          MIDI init, device management, note loop, control functions
+    gestures.js      Gesture triggers with hysteresis + visual flash
+    mapping.js       Hand movement → MIDI control routing
+    camera.js        Camera enumeration and stream handling
+    tracking.js      MediaPipe Hands setup + onResults callback
+    persistence.js   localStorage save/load + preset system
 ```
+
+## Acknowledgments
+
+DJMotion is built upon [Handmate MIDI](https://github.com/monlim/handmate-midi) by **Monica Lim**. Her original project established the core concept of using MediaPipe hand tracking to generate MIDI messages in the browser. DJMotion extends her work and code with modular architecture, presets, settings persistence, visual feedback, and extracted constants for easier tuning. Thank you to Monica, and feel free to contribute more features! 

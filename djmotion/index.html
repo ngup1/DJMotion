@@ -19,7 +19,7 @@
         <h1>Handmate MIDI</h1>
       </div>
       <div class="header-controls">
-        <button onclick="toggleControl()" id="controlButton" class="btn btn-primary">
+        <button id="controlButton" class="btn btn-primary">
           <span class="btn-text">Hide Controls</span>
         </button>
       </div>
@@ -74,7 +74,7 @@
           </div>
           <div class="control-item select-container">
             <label for="device">MIDI out device</label>
-            <select id="device" onchange="changeDevice()" class="select-input"></select>
+            <select id="device" class="select-input"></select>
           </div>
         </div>
 
@@ -386,6 +386,6 @@
       </div>
     </footer>
   </div>
-  <script type="text/javascript" src="script.js"></script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
