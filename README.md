@@ -68,7 +68,6 @@ Color-coded vignette flash on the video canvas when gestures trigger (indigo, gr
 ### 1. Install and run
 
 ```bash
-cd djmotion
 npm install
 npx http-server
 ```
@@ -118,21 +117,20 @@ Then open `http://localhost:8080` in your browser.
 ## Project Structure
 
 ```
-djmotion/
-  index.html         UI layout and control panel
-  appstyle.css       Dark theme styling with responsive breakpoints
-  package.json       Dependencies (webmidi, http-server)
-  js/
-    main.js          Entry point — DOM refs, event wiring, initialization
-    constants.js     All named constants (thresholds, ranges, config)
-    utils.js         Math utilities (scaleValue, clamp, linearScale)
-    state.js         Shared mutable state object
-    midi.js          MIDI init, device management, note loop, control functions
-    gestures.js      Gesture triggers with hysteresis + visual flash
-    mapping.js       Hand movement → MIDI control routing
-    camera.js        Camera enumeration and stream handling
-    tracking.js      MediaPipe Hands setup + onResults callback
-    persistence.js   localStorage save/load + preset system
+index.html           UI layout and control panel
+appstyle.css         Dark theme styling with responsive breakpoints
+package.json         Dependencies (webmidi, http-server)
+js/
+  main.js            Entry point — DOM refs, event wiring, initialization
+  constants.js       All named constants (thresholds, ranges, config)
+  utils.js           Math utilities (scaleValue, clamp, linearScale)
+  state.js           Shared mutable state object
+  midi.js            MIDI init, device management, note loop, control functions
+  gestures.js        Gesture triggers with hysteresis + visual flash
+  mapping.js         Hand movement → MIDI control routing
+  camera.js          Camera enumeration and stream handling
+  tracking.js        MediaPipe Hands setup + onResults callback
+  persistence.js     localStorage save/load + preset system
 ```
 
 ## Acknowledgments
